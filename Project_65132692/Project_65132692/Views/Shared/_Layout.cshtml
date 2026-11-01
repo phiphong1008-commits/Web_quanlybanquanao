@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - NOCTURNAL Shop</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Các style khác của Navbar đã được chuyển sang _MenuPartial nên có thể xóa ở đây hoặc giữ lại nếu muốn dùng chung */
+
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 40px 0;
+            margin-top: auto;
+        }
+
+        .main-content {
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    @Html.Action("Menu", "Shop_65132692")
+
+    <div class="container main-content">
+        @RenderBody()
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>VỀ NOCTURNAL</h5>
+                    <p>Thương hiệu thời trang mang phong cách tối giản, hiện đại và phóng khoáng dành cho giới trẻ.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>LIÊN HỆ</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fa-solid fa-location-dot"></i> 123 Lý Thường Kiệt, Q.10, TP.HCM</li>
+                        <li><i class="fa-solid fa-phone"></i> 0901234567</li>
+                        <li><i class="fa-solid fa-envelope"></i> contact@nocturnal.vn</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>THEO DÕI CHÚNG TÔI</h5>
+                    <a href="#" class="text-white me-3"><i class="fa-brands fa-facebook fa-2x"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fa-brands fa-instagram fa-2x"></i></a>
+                    <a href="#" class="text-white"><i class="fa-brands fa-tiktok fa-2x"></i></a>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">&copy; @DateTime.Now.Year - Bản quyền thuộc về SV 65132692</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,100 @@
+﻿@model IEnumerable<Project_65132692.Controllers.Admin.BaoCaoDoanhThu>
+
+@{
+    ViewBag.Title = "Thống kê doanh thu";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h3 class="text-primary fw-bold mb-4">
+    <i class="fa-solid fa-chart-line"></i> THỐNG KÊ DOANH SỐ
+</h3>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small opacity-75">Tổng doanh thu</div>
+                        <h3 class="fw-bold">@string.Format("{0:0,0}", ViewBag.TongDoanhThu) đ</h3>
+                    </div>
+                    <i class="fa-solid fa-sack-dollar fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small opacity-75">Đơn chờ duyệt</div>
+                        <h3 class="fw-bold">@ViewBag.DonHangMoi</h3>
+                    </div>
+                    <i class="fa-solid fa-clipboard-list fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-primary text-white shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-uppercase small opacity-75">Sản phẩm đang bán</div>
+                        <h3 class="fw-bold">@ViewBag.TongSanPham</h3>
+                    </div>
+                    <i class="fa-solid fa-shirt fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h6 class="m-0 fw-bold text-primary">
+            <i class="fa-solid fa-table"></i> Chi tiết doanh thu theo ngày
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-bordered table-striped mb-0 text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Ngày tháng</th>
+                    <th>Số đơn hàng bán được</th>
+                    <th>Tổng doanh thu (VNĐ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Ngay</td>
+                            <td>
+                                <span class="badge bg-info text-dark">@item.SoDonHang đơn</span>
+                            </td>
+                            <td class="fw-bold text-success">
+                                @string.Format("{0:0,0}", item.TongTien) đ
+                            </td>
+                        </tr>
+                    }
+                    <tr class="table-primary fw-bold">
+                        <td colspan="2" class="text-end">TỔNG CỘNG:</td>
+                        <td>@string.Format("{0:0,0}", ViewBag.TongDoanhThu) đ</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-muted py-4">Chưa có dữ liệu doanh thu nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

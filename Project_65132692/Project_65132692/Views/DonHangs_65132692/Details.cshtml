@@ -1,0 +1,149 @@
+﻿@model Project_65132692.Models.DonHang
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.MaDonHang;
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var nvSession = (Project_65132692.Models.NhanVien)Session["NhanVien"];
+    string chucVu = nvSession != null ? nvSession.ChucVu : "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-primary m-0">
+        <i class="fa-solid fa-circle-info"></i> CHI TIẾT ĐƠN HÀNG #@Model.MaDonHang
+    </h3>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại
+        </a>
+
+        @* NÚT DUYỆT ĐƠN CHO NHÂN VIÊN BÁN HÀNG *@
+        @if ((chucVu == "Nhân viên bán hàng" || chucVu == "Quản lý") && Model.TrangThai == "Chờ xác nhận")
+        {
+            using (Html.BeginForm("XacNhanDon", "DonHangs_65132692", new { id = Model.MaDonHang }, FormMethod.Post, new { @class = "d-inline" }))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success ms-2" onclick="return confirm('Xác nhận đơn hàng này?');">
+                    <i class="fa-solid fa-check"></i> DUYỆT ĐƠN NÀY
+                </button>
+            }
+        }
+
+        @* NÚT CẬP NHẬT GIAO HÀNG CHO SHIPPER *@
+        @if ((chucVu == "Nhân viên giao hàng" || chucVu == "Quản lý") && (Model.TrangThai == "Đã xác nhận" || Model.TrangThai == "Đang giao"))
+        {
+            <a href="@Url.Action("Edit", new { id = Model.MaDonHang })" class="btn btn-warning ms-2">
+                <i class="fa-solid fa-truck"></i> CẬP NHẬT GIAO HÀNG
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    @* Cột thông tin khách hàng *@
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100 border-primary">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="fa-solid fa-user"></i> THÔNG TIN KHÁCH HÀNG
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr><th style="width:130px">Họ tên:</th><td>@Model.KhachHang.HoTen</td></tr>
+                    <tr><th>SĐT:</th><td>@Model.KhachHang.SDT</td></tr>
+                    <tr><th>Email:</th><td>@Model.KhachHang.Email</td></tr>
+                    <tr>
+                        <th>Địa chỉ giao:</th>
+                        <td><div class="alert alert-secondary p-2 mb-0"><i class="fa-solid fa-location-dot text-danger"></i> @Model.DiaChiGiao</div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @* Cột thông tin trạng thái đơn *@
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100 border-info">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa-solid fa-file-invoice"></i> THÔNG TIN TRẠNG THÁI
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr><th style="width:130px">Ngày đặt:</th><td>@(Model.NgayDat.HasValue ? Model.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "")</td></tr>
+                    <tr>
+                        <th>Trạng thái:</th>
+                        <td>
+                            @if (Model.TrangThai == "Chờ xác nhận")
+                            {<span class="badge bg-warning text-dark">⏳ @Model.TrangThai</span> }
+                        else if (Model.TrangThai == "Đang giao")
+                        { <span class="badge bg-primary">🚚 @Model.TrangThai</span> }
+                    else if (Model.TrangThai == "Giao thành công")
+                    { <span class="badge bg-success">✅ @Model.TrangThai</span> }
+                else
+                { <span class="badge bg-danger">❌ @Model.TrangThai</span>}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Ngày giao:</th>
+                        <td>@(Model.NgayGiao.HasValue ? Model.NgayGiao.Value.ToString("dd/MM/yyyy") : "-- Chưa cập nhật --")</td>
+                    </tr>
+                    <tr>
+                        <th>NV Xử lý:</th>
+                        <td class="fw-bold text-primary">@(Model.NhanVien != null ? Model.NhanVien.HoTen : "Chưa có")</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @* Bảng danh sách sản phẩm (Đã sửa lỗi Partial View tại đây) *@
+    <div class="col-md-12">
+        <div class="card shadow-sm border-secondary">
+            <div class="card-header bg-secondary text-white fw-bold">
+                <i class="fa-solid fa-box-open"></i> CHI TIẾT SẢN PHẨM
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered table-hover mb-0 align-middle">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>STT</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Phân loại</th>
+                            <th>Đơn giá</th>
+                            <th>SL</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var item in Model.CT_DonHang)
+                        {
+                            <tr>
+                                <td class="text-center">@(i++)</td>
+                                <td class="text-center">
+                                    <img src="~/Images/@item.BienTheSanPham.SanPham.HinhAnh"
+                                         style="width:50px; height:50px; object-fit:cover"
+                                         class="border rounded"
+                                         onerror="this.src='https://via.placeholder.com/50'" />
+                                </td>
+                                <td>@item.BienTheSanPham.SanPham.TenSanPham</td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">@item.BienTheSanPham.Size</span>
+                                    <span class="badge bg-light text-dark border">@item.BienTheSanPham.MauSac</span>
+                                </td>
+                                <td class="text-end">@string.Format("{0:0,0}", item.DonGia)</td>
+                                <td class="text-center fw-bold">@item.SoLuong</td>
+                                <td class="text-end fw-bold text-danger">@string.Format("{0:0,0}", item.ThanhTien)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="6" class="text-end fw-bold fs-5">TỔNG CỘNG:</td>
+                            <td class="text-end fw-bold text-danger fs-4">@string.Format("{0:0,0}", Model.TongTien) đ</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

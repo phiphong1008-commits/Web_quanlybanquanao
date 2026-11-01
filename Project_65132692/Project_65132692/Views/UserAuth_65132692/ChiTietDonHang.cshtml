@@ -1,0 +1,70 @@
+﻿@model Project_65132692.Models.DonHang
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary">CHI TIẾT ĐƠN HÀNG #@Model.MaDonHang</h4>
+        <a href="@Url.Action("LichSuDonHang")" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-info text-white fw-bold">Thông tin nhận hàng</div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Người nhận:</strong> @Model.KhachHang.HoTen</p>
+                    <p class="mb-1"><strong>SĐT:</strong> @Model.KhachHang.SDT</p>
+                    <p class="mb-1"><strong>Địa chỉ:</strong> @Model.DiaChiGiao</p>
+                    <p class="mb-0"><strong>Ngày đặt:</strong> @string.Format("{0:dd/MM/yyyy HH:mm}", Model.NgayDat)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light fw-bold">Sản phẩm đã mua</div>
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Phân loại</th>
+                            <th>Giá</th>
+                            <th>SL</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ct in Model.CT_DonHang)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="~/Images/@ct.BienTheSanPham.SanPham.HinhAnh" width="40" height="40" class="rounded border me-2" style="object-fit:cover">
+                                        <strong>@ct.BienTheSanPham.SanPham.TenSanPham</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="badge bg-secondary">@ct.BienTheSanPham.Size</small>
+                                    <small class="badge bg-light text-dark border">@ct.BienTheSanPham.MauSac</small>
+                                </td>
+                                <td>@string.Format("{0:0,0}", ct.DonGia)</td>
+                                <td class="text-center">x @ct.SoLuong</td>
+                                <td class="text-end fw-bold">@string.Format("{0:0,0}", ct.ThanhTien) đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td colspan="4" class="text-end fw-bold">TỔNG CỘNG:</td>
+                            <td class="text-end fw-bold text-danger fs-5">@string.Format("{0:0,0}", Model.TongTien) đ</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

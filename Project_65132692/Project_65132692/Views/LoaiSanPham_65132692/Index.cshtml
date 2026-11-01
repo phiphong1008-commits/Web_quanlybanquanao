@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Project_65132692.Models.SanPham>
+
+@{
+    ViewBag.Title = ViewBag.TenLoai ?? "Danh sách sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-light py-4 mb-5">
+    <div class="container">
+        <h1 class="fw-bold text-uppercase text-dark">@ViewBag.TenLoai</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Shop_65132692")" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">@ViewBag.TenLoai</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mb-5">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <h4 class="text-muted">Chưa có sản phẩm nào thuộc danh mục này.</h4>
+            <a href="@Url.Action("Index", "Shop_65132692")" class="btn btn-dark mt-3">Quay lại mua sắm</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 border-0 shadow-sm product-card">
+                        <div class="position-relative overflow-hidden">
+                            <a href="@Url.Action("Details", "LoaiSanPham_65132692", new { id = item.MaSanPham })">
+                                <img src="~/Images/@item.HinhAnh" class="card-img-top"
+                                     alt="@item.TenSanPham"
+                                     style="height: 320px; object-fit: cover; transition: transform 0.3s;">
+                            </a>
+
+                            <div class="position-absolute bottom-0 start-0 w-100 p-2 d-none d-md-block">
+                                <a href="@Url.Action("Details", "LoaiSanPham_65132692", new { id = item.MaSanPham })"
+                                   class="btn btn-light w-100 fw-bold opacity-75">XEM CHI TIẾT</a>
+                            </div>
+                        </div>
+
+                        <div class="card-body text-center">
+                            <h6 class="card-title mb-1">
+                                <a href="@Url.Action("Details", "LoaiSanPham_65132692", new { id = item.MaSanPham })"
+                                   class="text-decoration-none text-dark fw-semibold">
+                                    @item.TenSanPham
+                                </a>
+                            </h6>
+                            <p class="card-text fw-bold text-danger mt-2">
+                                @String.Format("{0:N0} đ", item.DonGia)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .product-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .product-card:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+</style>

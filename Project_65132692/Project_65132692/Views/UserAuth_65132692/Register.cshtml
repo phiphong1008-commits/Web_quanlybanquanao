@@ -1,0 +1,73 @@
+﻿@model Project_65132692.Models.KhachHang
+
+@{
+    ViewBag.Title = "Đăng ký thành viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white text-center">
+                <h4><i class="fa-solid fa-user-plus"></i> ĐĂNG KÝ TÀI KHOẢN</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form action="@Url.Action("Register")" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên (*):</label>
+                        <input type="text" name="HoTen" class="form-control" required placeholder="Nguyễn Văn A">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số điện thoại:</label>
+                            <input type="text" name="SDT" class="form-control" required placeholder="0909...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" name="Email" class="form-control" required placeholder="abc@gmail.com">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ (Để giao hàng):</label>
+                        <input type="text" name="DiaChi" class="form-control" required placeholder="Số nhà, đường, quận...">
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">Tên đăng nhập:</label>
+                        <input type="text" name="Username" class="form-control" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Mật khẩu:</label>
+                            <input type="password" name="Password" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Xác nhận mật khẩu:</label>
+                            <input type="password" name="xacNhanMatKhau" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-success btn-lg">HOÀN TẤT ĐĂNG KÝ</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                Đã có tài khoản? <a href="@Url.Action("Login")" class="text-decoration-none fw-bold">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</div>

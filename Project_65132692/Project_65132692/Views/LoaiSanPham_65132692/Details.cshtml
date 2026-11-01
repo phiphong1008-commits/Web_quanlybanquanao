@@ -1,0 +1,118 @@
+﻿@model Project_65132692.Models.SanPham
+
+@{
+    ViewBag.Title = Model.TenSanPham;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-light py-3 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Shop_65132692")" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "LoaiSanPham_65132692", new { maLoai = Model.MaLoai })" class="text-decoration-none text-muted">
+                        @(Model.LoaiSanPham != null ? Model.LoaiSanPham.TenLoai : "Sản phẩm")
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">@Model.TenSanPham</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="~/Images/@Model.HinhAnh" class="card-img-top" alt="@Model.TenSanPham" style="width: 100%; object-fit: cover;">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-3">@Model.TenSanPham</h2>
+
+            <h3 class="text-danger fw-bold mb-4">
+                @String.Format("{0:N0} đ", Model.DonGia)
+            </h3>
+
+            <p class="text-muted mb-4">
+                @Model.MoTa
+            </p>
+
+            <hr />
+
+            @using (Html.BeginForm("ThemVaoGio", "GioHang_65132692", FormMethod.Post))
+            {
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3">Tùy chọn có sẵn:</h5>
+
+                    @if (Model.BienTheSanPhams != null && Model.BienTheSanPhams.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Size</th>
+                                        <th>Màu sắc</th>
+                                        <th>Tồn kho</th>
+                                        <th>Chọn</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.BienTheSanPhams)
+                                    {
+                                        <tr>
+                                            <td class="align-middle fw-bold">@item.Size</td>
+                                            <td class="align-middle">@item.MauSac</td>
+                                            <td class="align-middle">
+                                                @if (item.SoLuong > 0)
+                                                {
+                                                    <span class="badge bg-success">Còn @item.SoLuong</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Hết hàng</span>
+                                                }
+                                            </td>
+                                            <td class="align-middle">
+                                                @if (item.SoLuong > 0)
+                                                {
+                                                    <input type="radio" name="MaBienThe" value="@item.MaBienThe" required class="form-check-input" style="cursor: pointer;">
+                                                }
+                                                else
+                                                {
+                                                    <input type="radio" disabled class="form-check-input">
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted">* Vui lòng chọn Size và Màu sắc mong muốn ở bảng trên.</small>
+                    }
+                    else
+                    {
+                        <p class="text-danger">Sản phẩm này tạm thời chưa cập nhật kho hàng.</p>
+                    }
+                </div>
+
+                <input type="hidden" name="soLuong" value="1" />
+
+                <div class="mt-4">
+                    <button class="btn btn-dark btn-lg px-5 w-100" type="submit">
+                        <i class="fa-solid fa-cart-plus me-2"></i> THÊM VÀO GIỎ HÀNG
+                    </button>
+                </div>
+            }
+            <div class="mt-4 pt-3 border-top">
+                <ul class="list-unstyled text-secondary small">
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Miễn phí giao hàng cho đơn từ 500k</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Đổi trả miễn phí trong vòng 7 ngày</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Hàng chính hãng NOCTURNAL</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

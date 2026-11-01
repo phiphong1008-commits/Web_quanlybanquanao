@@ -1,0 +1,174 @@
+﻿@model Project_65132692.Models.SanPham
+
+@{
+    ViewBag.Title = "Cập nhật sản phẩm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var listBienThe = ViewBag.ListBienThe as List<Project_65132692.Models.BienTheSanPham>;
+}
+
+<h3 class="mb-4 text-warning"><i class="fa-solid fa-pen-to-square"></i> CẬP NHẬT SẢN PHẨM</h3>
+
+@using (Html.BeginForm("Edit", "SanPhams_65132692", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.MaSanPham) <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white fw-bold">1. Thông tin chung</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên sản phẩm (*)</label>
+                        @Html.EditorFor(model => model.TenSanPham, new { htmlAttributes = new { @class = "form-control", required = "required" } })
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Đơn giá (*)</label>
+                            @Html.EditorFor(model => model.DonGia, new { htmlAttributes = new { @class = "form-control", type = "number" } })
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Loại sản phẩm (*)</label>
+                            @Html.DropDownList("MaLoai", null, htmlAttributes: new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Trạng thái:</label>
+                        <div class="form-check form-switch">
+                            @Html.CheckBox("TrangThai", Model.TrangThai ?? true, new { @class = "form-check-input" })
+                            <label class="form-check-label">Đang kinh doanh</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hình ảnh hiện tại</label>
+                        <div class="d-flex align-items-center">
+                            <img src="@Url.Content("~/Images/" + Model.HinhAnh)" style="width: 80px; height: 80px; object-fit: cover;" class="rounded border me-3" />
+                            <input type="file" name="HinhAnhUpload" class="form-control" accept="image/*" />
+                        </div>
+                        <small class="text-muted fst-italic">* Để trống nếu không muốn đổi ảnh.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mô tả</label>
+                        @Html.TextAreaFor(model => model.MoTa, new { @class = "form-control", rows = "3" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
+                    <span>2. Kho & Biến thể</span>
+                    <button type="button" class="btn btn-sm btn-dark" onclick="addRow()">
+                        <i class="fa-solid fa-plus"></i> Thêm dòng
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0 text-center" id="tblBienThe">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Size</th>
+                                <th>Màu sắc</th>
+                                <th>SL Tồn</th>
+                                <th>Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (listBienThe != null && listBienThe.Count > 0)
+                            {
+                                foreach (var bt in listBienThe)
+                                {
+                                    <tr>
+                                        <td>
+                                            <select name="Size[]" class="form-select form-select-sm">
+                                                <option value="S" @(bt.Size == "S" ? "selected" : "")>S</option>
+                                                <option value="M" @(bt.Size == "M" ? "selected" : "")>M</option>
+                                                <option value="L" @(bt.Size == "L" ? "selected" : "")>L</option>
+                                                <option value="XL" @(bt.Size == "XL" ? "selected" : "")>XL</option>
+                                                <option value="XXL" @(bt.Size == "XXL" ? "selected" : "")>XXL</option>
+                                                <option value="Free" @(bt.Size == "Free" ? "selected" : "")>FreeSize</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="MauSac[]" class="form-control form-control-sm" value="@bt.MauSac" required />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="SoLuong[]" class="form-control form-control-sm" value="@bt.SoLuong" min="0" required />
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <select name="Size[]" class="form-select form-select-sm">
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                            <option value="Free">FreeSize</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" name="MauSac[]" class="form-control form-control-sm" placeholder="Màu..." /></td>
+                                    <td><input type="number" name="SoLuong[]" class="form-control form-control-sm" value="0" /></td>
+                                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-warning btn-lg fw-bold">
+            <i class="fa-solid fa-save"></i> LƯU THAY ĐỔI
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy bỏ</a>
+    </div>
+}
+
+<script>
+    // Dùng chung Script thêm dòng với trang Create
+    function addRow() {
+        var table = document.getElementById("tblBienThe").getElementsByTagName('tbody')[0];
+        var newRow = table.insertRow(table.rows.length);
+
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+
+        cell1.innerHTML = `
+            <select name="Size[]" class="form-select form-select-sm">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+                <option value="Free">FreeSize</option>
+            </select>`;
+        cell2.innerHTML = '<input type="text" name="MauSac[]" class="form-control form-control-sm" placeholder="Màu..." />';
+        cell3.innerHTML = '<input type="number" name="SoLuong[]" class="form-control form-control-sm" value="0" min="0" />';
+        cell4.innerHTML = '<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button>';
+    }
+
+    function removeRow(btn) {
+        var row = btn.parentNode.parentNode;
+        var table = document.getElementById("tblBienThe").getElementsByTagName('tbody')[0];
+        if (table.rows.length > 1) {
+            row.parentNode.removeChild(row);
+        } else {
+            alert("Phải giữ lại ít nhất 1 dòng!");
+        }
+    }
+</script>

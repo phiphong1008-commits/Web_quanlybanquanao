@@ -1,0 +1,68 @@
+﻿@model Project_65132692.Models.DonHang
+
+@{
+    ViewBag.Title = "Cập nhật giao hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var nvSession = (Project_65132692.Models.NhanVien)Session["NhanVien"];
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-warning m-0"><i class="fa-solid fa-truck-fast"></i> CẬP NHẬT GIAO HÀNG #@Model.MaDonHang</h3>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light fw-bold">Thông tin đơn hàng</div>
+            <div class="card-body">
+                <p><strong>Khách hàng:</strong> @Model.KhachHang.HoTen</p>
+                <p><strong>SĐT:</strong> @Model.KhachHang.SDT</p>
+                <p><strong>Địa chỉ:</strong> <span class="text-danger">@Model.DiaChiGiao</span></p>
+                <p><strong>Tổng tiền thu:</strong> <span class="fw-bold fs-5 text-success">@string.Format("{0:0,0}", Model.TongTien) đ</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm border-warning">
+            <div class="card-header bg-warning text-dark fw-bold text-center">
+                TIẾN ĐỘ GIAO HÀNG
+            </div>
+            <div class="card-body">
+                <form action="@Url.Action("Edit")" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="maDonHang" value="@Model.MaDonHang" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Shipper phụ trách:</label>
+                        <input type="text" class="form-control bg-light" value="@nvSession.HoTen" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Trạng thái hiện tại:</label>
+                        <select name="trangThai" class="form-select form-select-lg mb-2 border-warning">
+                            <option value="Đang giao" @(Model.TrangThai == "Đang giao" ? "selected" : "")>🚚 Đang đi giao</option>
+                            <option value="Giao thành công" @(Model.TrangThai == "Giao thành công" ? "selected" : "")>✅ Giao thành công</option>
+                            <option value="Đã hủy" @(Model.TrangThai == "Đã hủy" ? "selected" : "")>❌ Giao thất bại / Hủy</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Ngày giao thực tế:</label>
+                        <input type="date" name="ngayGiao" class="form-control"
+                               value="@(Model.NgayGiao.HasValue ? Model.NgayGiao.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                            <i class="fa-solid fa-floppy-disk"></i> LƯU TRẠNG THÁI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

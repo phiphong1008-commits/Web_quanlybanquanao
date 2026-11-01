@@ -1,0 +1,237 @@
+﻿@model IEnumerable<Project_65132692.Models.GioHang>
+@using Project_65132692.Models
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var khach = Session["KhachHang"] as KhachHang;
+    string diaChiMacDinh = (khach != null && !string.IsNullOrEmpty(khach.DiaChi)) ? khach.DiaChi : "";
+}
+
+<div class="container" style="margin-top: 30px; margin-bottom: 50px;">
+    <h2 class="text-center text-uppercase" style="letter-spacing: 2px;">Giỏ hàng của bạn</h2>
+    <hr />
+
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["Loi"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center">
+            <img src="https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/cart/9bdd8040b334d31946f49e36beaf32db.png" alt="Empty Cart" style="width: 200px;" />
+            <p class="mt-3">Giỏ hàng của bạn còn trống</p>
+            <a href="@Url.Action("Index", "Shop_65132692")" class="btn btn-primary">MUA NGAY</a>
+        </div>
+    }
+    else
+    {
+        using (Html.BeginForm("DatHang", "GioHang_65132692", FormMethod.Post, new { id = "form-dathang" }))
+        {
+            <div class="table-responsive shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="text-center" style="width: 50px;">
+                                <input type="checkbox" id="checkAll" onchange="toggleAll(this)" />
+                            </th>
+                            <th style="width: 400px;">Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th class="text-center">Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var giaBan = item.BienTheSanPham.SanPham.DonGia;
+                            var thanhTien = giaBan * item.SoLuong;
+
+                            <tr>
+                                <td class="text-center align-middle">
+                                    <input type="checkbox" name="selectedIds" value="@item.MaGioHang"
+                                           class="item-check"
+                                           data-price="@((int)thanhTien)"
+                                           onchange="calculateTotal()" />
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <img src="~/Images/@item.BienTheSanPham.SanPham.HinhAnh"
+                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px; margin-right: 15px;"
+                                             alt="Ảnh SP" />
+                                        <div>
+                                            <h5 style="font-size: 16px; margin: 0;">@item.BienTheSanPham.SanPham.TenSanPham</h5>
+                                            <small class="text-muted">
+                                                Size: @item.BienTheSanPham.Size | Màu: @item.BienTheSanPham.MauSac
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle text-danger fw-bold">
+                                    @giaBan.ToString("N0") đ
+                                </td>
+                                <td class="align-middle text-center">
+                                    <form action="@Url.Action("CapNhatGioHang", "GioHang_65132692")" method="post" style="display:inline-flex;">
+                                        <input type="hidden" name="maGioHang" value="@item.MaGioHang" />
+                                        <input type="number" name="soLuongMoi" value="@item.SoLuong" min="1"
+                                               class="form-control form-control-sm text-center"
+                                               style="width: 60px;" onchange="this.form.submit()" />
+                                    </form>
+                                </td>
+                                <td class="align-middle text-danger fw-bold">
+                                    @thanhTien.ToString("N0") đ
+                                </td>
+                                <td class="align-middle text-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            onclick="confirmAction('delete', '@item.MaGioHang', '@Html.Raw(HttpUtility.JavaScriptStringEncode(item.BienTheSanPham.SanPham.TenSanPham))')">
+                                        <i class="fa fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card mt-3 shadow-sm sticky-bottom" style="border: none; background-color: #f8f9fa;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label>Địa chỉ giao hàng:</label>
+                            <input type="text" name="diaChiGiao" class="form-control"
+                                   value="@diaChiMacDinh"
+                                   placeholder="Nhập địa chỉ nhận hàng..." required />
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <span class="h5">Tổng thanh toán:</span>
+                            <h4 class="text-danger fw-bold" id="totalPrice">0 đ</h4>
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <button type="button" class="btn btn-warning btn-lg btn-block text-white fw-bold"
+                                    onclick="confirmAction('order', '', '')">
+                                MUA HÀNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="modalTitle">Xác nhận</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div id="modalIcon" class="mb-3" style="font-size: 3rem;"></div>
+                <p id="modalMessage" class="fs-5 text-secondary"></p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" id="btnConfirm" class="btn px-4 fw-bold"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        // --- 1. HÀM TÍNH TIỀN ---
+        function calculateTotal() {
+            var checkboxes = document.querySelectorAll('.item-check');
+            var total = 0;
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    var price = parseFloat(checkbox.getAttribute('data-price'));
+                    if (!isNaN(price)) total += price;
+                }
+            });
+            document.getElementById('totalPrice').innerText = total.toLocaleString('vi-VN') + ' đ';
+            updateCheckAllState();
+        }
+
+        // --- 2. CÁC HÀM CHECKBOX ---
+        function toggleAll(source) {
+            var checkboxes = document.querySelectorAll('.item-check');
+            checkboxes.forEach(function (checkbox) { checkbox.checked = source.checked; });
+            calculateTotal();
+        }
+
+        function updateCheckAllState() {
+            var checkboxes = document.querySelectorAll('.item-check');
+            var allChecked = checkboxes.length > 0;
+            checkboxes.forEach(function (cb) { if (!cb.checked) allChecked = false; });
+            document.getElementById('checkAll').checked = allChecked;
+        }
+
+        // --- 3. XỬ LÝ MODAL (Dùng jQuery để tương thích mọi phiên bản) ---
+        var actionType = '';
+        var targetId = '';
+
+        function confirmAction(type, id, name) {
+            actionType = type;
+            targetId = id;
+
+            var modalTitle = $('#modalTitle');
+            var modalMessage = $('#modalMessage');
+            var modalIcon = $('#modalIcon');
+            var btnConfirm = $('#btnConfirm');
+
+            // Reset class nút bấm
+            btnConfirm.removeClass().addClass('btn px-4 fw-bold');
+
+            if (type === 'delete') {
+                modalTitle.text('Xác nhận xóa');
+                modalMessage.html('Bạn có chắc muốn xóa <strong>' + name + '</strong> khỏi giỏ?');
+                modalIcon.html('<i class="fa fa-trash text-danger"></i>'); // Dùng fa fa-trash cho icon cũ cũng nhận
+                btnConfirm.text('Xóa ngay');
+                btnConfirm.addClass('btn-danger');
+            }
+            else if (type === 'order') {
+                // Kiểm tra đã chọn sản phẩm chưa
+                if ($('.item-check:checked').length === 0) {
+                    alert("Vui lòng chọn ít nhất 1 sản phẩm để mua!");
+                    return;
+                }
+
+                modalTitle.text('Xác nhận đặt hàng');
+                modalMessage.text('Bạn có chắc chắn muốn đặt mua các sản phẩm đã chọn?');
+                modalIcon.html('<i class="fa fa-shopping-cart text-warning"></i>');
+                btnConfirm.text('Đặt hàng');
+                btnConfirm.addClass('btn-warning text-white');
+            }
+
+            // Lệnh gọi Modal bằng jQuery (Chạy tốt trên BS3, BS4, BS5)
+            $('#confirmModal').modal('show');
+        }
+
+        // Xử lý khi bấm nút Đồng ý
+        $('#btnConfirm').click(function () {
+            if (actionType === 'delete') {
+                window.location.href = '/GioHang_65132692/XoaKhoiGio/' + targetId;
+            }
+            else if (actionType === 'order') {
+                $('#form-dathang').submit();
+            }
+        });
+
+        // Chạy tính tiền khi load trang
+        $(document).ready(function () {
+            calculateTotal();
+        });
+    </script>
+}
+}

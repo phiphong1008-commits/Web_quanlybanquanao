@@ -1,0 +1,87 @@
+﻿@model Project_65132692.Models.NhanVien
+
+@{
+    ViewBag.Title = "Cập nhật nhân viên";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h2 class="text-warning" style="border-bottom: 2px solid #ffc107; padding-bottom: 10px;">
+                <i class="fa fa-edit"></i> Cập Nhật Thông Tin: @Model.HoTen
+            </h2>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.MaNhanVien)
+                @Html.HiddenFor(model => model.Username) @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="text-muted">Thông tin chung</h4>
+                        <hr />
+
+                        <div class="form-group">
+                            <label class="control-label">Họ và Tên <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.HoTen, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Số điện thoại <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Chức vụ <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.ChucVu, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" style="border-left: 1px solid #eee;">
+                        <h4 class="text-muted">Cài đặt tài khoản</h4>
+                        <hr />
+
+                        <div class="form-group">
+                            <label class="control-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" value="@Model.Username" disabled readonly style="background-color: #f9f9f9;" />
+                            <small class="text-muted">Không thể thay đổi tên đăng nhập.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" style="color:red">Đổi mật khẩu (Nếu cần)</label>
+                            <input type="password" name="NewPassword" class="form-control" placeholder="Để trống nếu muốn giữ mật khẩu cũ" />
+                        </div>
+
+                        <div class="form-group bg-warning p-2 rounded" style="background-color: #fff3cd;">
+                            <label class="control-label">Trạng thái & Quyền hạn</label>
+                            <select name="Role" class="form-control">
+                                <option value="staff" @(Model.Role == "staff" ? "selected" : "")>Nhân viên (Hoạt động)</option>
+                                <option value="admin" @(Model.Role == "admin" ? "selected" : "")>Quản trị viên (Hoạt động)</option>
+                                <option value="" @(string.IsNullOrEmpty(Model.Role) ? "selected" : "") style="color:red; font-weight:bold;">-- TÀI KHOẢN ĐANG BỊ KHÓA --</option>
+                            </select>
+                            <small class="text-muted">Chọn lại quyền (Admin/Staff) để mở khóa tài khoản.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <a href="@Url.Action("Index")" class="btn btn-default btn-secondary">
+                            <i class="fa fa-times"></i> Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fa fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

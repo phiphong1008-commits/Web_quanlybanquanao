@@ -1,0 +1,139 @@
+﻿@model IEnumerable<Project_65132692.Models.DonHang>
+
+@{
+    ViewBag.Title = "Lịch sử đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <h3 class="mb-4 text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">
+        <i class="fa-solid fa-clock-rotate-left me-2"></i> LỊCH SỬ MUA HÀNG
+    </h3>
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i> @TempData["ThongBao"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty" style="width: 100px; opacity: 0.5;" />
+            <p class="mt-3 text-muted">Bạn chưa có đơn hàng nào.</p>
+            <a href="@Url.Action("Index", "Shop_65132692")" class="btn btn-primary px-4 fw-bold">
+                <i class="fa-solid fa-cart-plus me-2"></i> Mua sắm ngay
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="py-3 ps-4">Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-primary">#@item.MaDonHang</td>
+                                <td>@string.Format("{0:dd/MM/yyyy HH:mm}", item.NgayDat)</td>
+                                <td class="fw-bold text-danger">@string.Format("{0:N0}", item.TongTien) đ</td>
+                                <td>
+                                    @if (item.TrangThai == "Chờ xác nhận")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fa-regular fa-clock me-1"></i> Chờ duyệt</span>
+                                    }
+                                    else if (item.TrangThai == "Giao thành công")
+                                    {
+                                        <span class="badge bg-success"><i class="fa-solid fa-check-circle me-1"></i> Hoàn thành</span>
+                                    }
+                                    else if (item.TrangThai == "Đã hủy")
+                                    {
+                                        <span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i> Đã hủy</span>
+                                    }
+                                    else if (item.TrangThai == "Đang giao")
+                                    {
+                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-truck me-1"></i> Đang giao</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.TrangThai</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a href="@Url.Action("ChiTietDonHang", new { id = item.MaDonHang })"
+                                       class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+
+                                    @if (item.TrangThai == "Chờ xác nhận")
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger ms-1"
+                                                title="Hủy đơn hàng"
+                                                onclick="confirmCancel('@Url.Action("HuyDonHang", new { id = item.MaDonHang })', '#@item.MaDonHang')">
+                                            <i class="fa-solid fa-trash-can"></i> Hủy
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 bg-danger text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> Xác nhận hủy đơn
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fa-solid fa-file-circle-xmark text-danger" style="font-size: 4rem;"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Bạn chắc chắn muốn hủy đơn hàng <span id="orderIdDisplay" class="text-primary"></span>?</h5>
+                <p class="text-muted mb-0">Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Không, giữ lại</button>
+                <a href="#" id="btnConfirmCancel" class="btn btn-danger px-4 fw-bold">
+                    <i class="fa-solid fa-trash-can me-2"></i> Đồng ý hủy
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmCancel(url, orderCode) {
+            // 1. Gán mã đơn
+            $('#orderIdDisplay').text(orderCode);
+
+            // 2. Gán link hủy
+            $('#btnConfirmCancel').attr('href', url);
+
+            // 3. Hiển thị Modal
+            // Sử dụng cú pháp jQuery cơ bản để tương thích với thư viện có sẵn trong Layout
+            $('#cancelModal').modal('show');
+        }
+    </script>
+}

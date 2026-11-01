@@ -1,0 +1,211 @@
+﻿@model IEnumerable<Project_65132692.Models.DonHang>
+@using Project_65132692.Models
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    var nv = Session["NhanVien"] as NhanVien;
+
+    // Logic phân quyền
+    bool isAdmin = (nv.Role == "admin" || nv.ChucVu == "Quản lý");
+    bool isSale = (nv.ChucVu == "Nhân viên bán hàng" || isAdmin);
+    bool isShip = (nv.ChucVu == "Nhân viên giao hàng" || isAdmin);
+}
+
+<div class="container-fluid">
+    <h2 class="text-center text-uppercase text-primary" style="margin-top: 20px; font-weight: 700;">Quản lý Đơn hàng</h2>
+    <hr />
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["ThongBao"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["Loi"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="text-center py-3">Mã đơn</th>
+                            <th class="py-3">Khách hàng</th>
+                            <th class="py-3">Tổng tiền</th>
+                            <th class="py-3">Ngày đặt</th>
+                            <th class="text-center py-3">Trạng thái</th>
+                            <th class="text-center py-3" style="min-width: 180px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-center fw-bold text-secondary">#@item.MaDonHang</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.KhachHang.HoTen</div>
+                                    <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>@item.KhachHang.SDT</small><br />
+                                    <small class="text-secondary"><i class="fa-solid fa-location-dot me-1"></i>@item.DiaChiGiao</small>
+                                </td>
+                                <td class="text-danger fw-bold">@item.TongTien.ToString("N0") đ</td>
+                                <td>@item.NgayDat.Value.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Chờ xác nhận")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fa-regular fa-clock me-1"></i> Chờ duyệt</span>
+                                    }
+                                    else if (item.TrangThai == "Đã xác nhận")
+                                    {
+                                        <span class="badge bg-primary"><i class="fa-solid fa-box me-1"></i> Đã duyệt</span>
+                                    }
+                                    else if (item.TrangThai == "Đang giao")
+                                    {
+                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-truck-fast me-1"></i> Đang giao</span>
+                                    }
+                                    else if (item.TrangThai == "Giao thành công")
+                                    {
+                                        <span class="badge bg-success"><i class="fa-solid fa-check-double me-1"></i> Thành công</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i> @item.TrangThai</span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="@Url.Action("Details", new { id = item.MaDonHang })" class="btn btn-outline-secondary btn-sm" title="Xem chi tiết">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+
+                                    @if (item.TrangThai == "Chờ xác nhận" && isSale)
+                                    {
+                                        // Đặt ID cho form để JS gọi
+                                        using (Html.BeginForm("CapNhatTrangThai", "DonHangs_65132692", FormMethod.Post, new { id = "form-duyet-" + item.MaDonHang, style = "display:inline-block; margin-left: 5px;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.MaDonHang)
+                                            @Html.Hidden("trangThaiMoi", "Đã xác nhận")
+                                            // Thay type="submit" thành type="button" và gọi hàm JS
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="showModal('form-duyet-@item.MaDonHang', 'Bạn có chắc muốn DUYỆT đơn hàng này?', 'primary')">
+                                                <i class="fa-solid fa-check"></i> Duyệt
+                                            </button>
+                                        }
+                                    }
+
+                                    @if (item.TrangThai == "Đã xác nhận" && isShip)
+                                    {
+                                        using (Html.BeginForm("CapNhatTrangThai", "DonHangs_65132692", FormMethod.Post, new { id = "form-digiao-" + item.MaDonHang, style = "display:inline-block; margin-left: 5px;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.MaDonHang)
+                                            @Html.Hidden("trangThaiMoi", "Đang giao")
+                                            <button type="button" class="btn btn-warning btn-sm text-dark" onclick="showModal('form-digiao-@item.MaDonHang', 'Xác nhận bắt đầu ĐI GIAO đơn hàng này?', 'warning')">
+                                                <i class="fa-solid fa-truck"></i> Giao
+                                            </button>
+                                        }
+                                    }
+
+                                    @if (item.TrangThai == "Đang giao" && isShip)
+                                    {
+                                        <div class="d-inline-block ms-1">
+                                            @using (Html.BeginForm("CapNhatTrangThai", "DonHangs_65132692", FormMethod.Post, new { id = "form-success-" + item.MaDonHang, style = "display:inline-block;" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                @Html.Hidden("id", item.MaDonHang)
+                                                @Html.Hidden("trangThaiMoi", "Giao thành công")
+                                                <button type="button" class="btn btn-success btn-sm" onclick="showModal('form-success-@item.MaDonHang', 'Xác nhận GIAO THÀNH CÔNG và đã thu tiền?', 'success')">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </button>
+                                            }
+
+                                            @using (Html.BeginForm("CapNhatTrangThai", "DonHangs_65132692", FormMethod.Post, new { id = "form-fail-" + item.MaDonHang, style = "display:inline-block; margin-left:2px;" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                @Html.Hidden("id", item.MaDonHang)
+                                                @Html.Hidden("trangThaiMoi", "Đã hủy")
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="showModal('form-fail-@item.MaDonHang', 'Cảnh báo: Xác nhận HỦY ĐƠN (Giao thất bại)?', 'danger')">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="modalTitle">Xác nhận hành động</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div id="modalIcon" class="mb-3" style="font-size: 3rem;"></div>
+                <p id="modalMessage" class="fs-5 text-secondary">Bạn có chắc chắn muốn thực hiện?</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" id="btnConfirmSubmit" class="btn btn-primary px-4 fw-bold">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentFormId = '';
+
+    function showModal(formId, message, type) {
+        currentFormId = formId; // Lưu lại ID của form cần submit
+
+        // Gán nội dung thông báo
+        document.getElementById('modalMessage').innerText = message;
+
+        // Chỉnh màu sắc và icon dựa trên loại hành động (cho đẹp)
+        const confirmBtn = document.getElementById('btnConfirmSubmit');
+        const iconDiv = document.getElementById('modalIcon');
+
+        confirmBtn.className = 'btn px-4 fw-bold '; // Reset class
+
+        if (type === 'primary') { // Duyệt
+            confirmBtn.classList.add('btn-primary');
+            iconDiv.innerHTML = '<i class="fa-solid fa-circle-question text-primary"></i>';
+        } else if (type === 'success') { // Thành công
+            confirmBtn.classList.add('btn-success');
+            iconDiv.innerHTML = '<i class="fa-solid fa-circle-check text-success"></i>';
+        } else if (type === 'danger') { // Hủy
+            confirmBtn.classList.add('btn-danger');
+            iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger"></i>';
+        } else { // Warning (Đi giao)
+            confirmBtn.classList.add('btn-warning');
+            iconDiv.innerHTML = '<i class="fa-solid fa-truck-fast text-warning"></i>';
+        }
+
+        // Hiện Modal (Bootstrap 5)
+        var myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        myModal.show();
+    }
+
+    // Khi người dùng bấm nút "Đồng ý" trong Modal
+    document.getElementById('btnConfirmSubmit').addEventListener('click', function () {
+        if (currentFormId) {
+            document.getElementById(currentFormId).submit(); // Submit cái form tương ứng
+        }
+    });
+</script>

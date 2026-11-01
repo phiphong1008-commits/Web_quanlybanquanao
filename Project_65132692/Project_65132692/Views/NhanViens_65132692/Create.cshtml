@@ -1,0 +1,86 @@
+﻿@model Project_65132692.Models.NhanVien
+
+@{
+    ViewBag.Title = "Thêm nhân viên mới";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h2 class="text-primary" style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                <i class="fa fa-user-plus"></i> Thêm Nhân Viên Mới
+            </h2>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="text-info">1. Thông tin cá nhân</h4>
+                        <hr />
+
+                        <div class="form-group">
+                            <label class="control-label">Họ và Tên <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.HoTen, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Số điện thoại <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control", @type = "text", @pattern = "[0-9]{10,11}", @title = "Vui lòng nhập số điện thoại hợp lệ", @required = "required" } })
+                            @Html.ValidationMessageFor(model => model.SDT, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Chức vụ <span class="text-danger">(*)</span></label>
+                            <select name="ChucVu" class="form-control" required>
+                                <option value="">-- Chọn chức vụ --</option>
+                                <option value="Quản lý">Quản lý (Admin)</option>
+                                <option value="Nhân viên bán hàng">Nhân viên bán hàng</option>
+                                <option value="Nhân viên giao hàng">Nhân viên giao hàng</option>
+                            </select>
+                            @Html.ValidationMessageFor(model => model.ChucVu, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" style="border-left: 1px dashed #ccc;">
+                        <h4 class="text-info">2. Tài khoản hệ thống</h4>
+                        <hr />
+
+                        <div class="form-group">
+                            <label class="control-label">Tên đăng nhập <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.Username, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                            @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Mật khẩu <span class="text-danger">(*)</span></label>
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @type = "password", @required = "required" } })
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Phân quyền hệ thống <span class="text-danger">(*)</span></label>
+                            <select name="Role" class="form-control" required>
+                                <option value="staff">Nhân viên (Staff)</option>
+                                <option value="admin">Quản trị viên (Admin - Toàn quyền)</option>
+                            </select>
+                            <small class="text-muted">Lưu ý: Chỉ chọn Admin cho Quản lý.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="text-right">
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Quay lại</a>
+                    <button type="submit" class="btn btn-primary">Lưu nhân viên</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

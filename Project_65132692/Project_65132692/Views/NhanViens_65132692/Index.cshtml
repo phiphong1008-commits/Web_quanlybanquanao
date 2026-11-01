@@ -1,0 +1,136 @@
+﻿@model IEnumerable<Project_65132692.Models.NhanVien>
+
+@{
+    ViewBag.Title = "Quản lý nhân viên";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+        <h2 class="text-primary fw-bold m-0">Danh sách nhân viên</h2>
+        <a href="@Url.Action("Create")" class="btn btn-success">
+            <i class="fa-solid fa-user-plus me-2"></i> Thêm nhân viên mới
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th class="py-3">Họ tên</th>
+                            <th class="py-3">Chức vụ</th>
+                            <th class="py-3">Tài khoản</th>
+                            <th class="py-3 text-center">Trạng thái</th>
+                            <th class="py-3 text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold text-secondary">@Html.DisplayFor(modelItem => item.HoTen)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ChucVu)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Username)</td>
+                                <td class="text-center">
+                                    @if (string.IsNullOrEmpty(item.Role))
+                                    {
+                                        <span class="badge bg-danger"><i class="fa-solid fa-lock me-1"></i> Đã khóa</span>
+                                    }
+                                    else if (item.Role == "admin")
+                                    {
+                                        <span class="badge bg-primary"><i class="fa-solid fa-user-shield me-1"></i> Quản trị viên</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success"><i class="fa-solid fa-user-tag me-1"></i> Nhân viên</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a href="@Url.Action("Edit", new { id = item.MaNhanVien })" class="btn btn-sm btn-warning text-dark me-1">
+                                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                    </a>
+
+                                    @if (!string.IsNullOrEmpty(item.Role))
+                                    {
+                                        // Gán ID cho form để JS có thể gọi lệnh submit
+                                        using (Html.BeginForm("DeleteConfirmed", "NhanViens_65132692", new { id = item.MaNhanVien }, FormMethod.Post, new { id = "form-lock-" + item.MaNhanVien, style = "display:inline;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            // Đổi type="button" và gọi hàm showLockModal
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="showLockModal('form-lock-@item.MaNhanVien', '@Html.Raw(HttpUtility.JavaScriptStringEncode(item.HoTen))')">
+                                                <i class="fa-solid fa-lock"></i> Khóa
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Nút Mở khóa (Option) - Chỉ cần link tới Edit để sửa Role
+                                        <span class="text-muted small"><i class="fa-solid fa-ban"></i></span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="lockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> Xác nhận khóa tài khoản
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fa-solid fa-user-lock text-danger" style="font-size: 3.5rem;"></i>
+                </div>
+                <h5 class="mb-2">Bạn có chắc muốn khóa nhân viên này?</h5>
+                <p class="text-primary fw-bold fs-5" id="employeeNameLock"></p>
+                <p class="text-muted small mb-0">Tài khoản này sẽ không thể đăng nhập được nữa cho đến khi được mở lại.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" id="btnConfirmLock" class="btn btn-danger px-4 fw-bold">
+                    <i class="fa-solid fa-lock me-2"></i> Khóa ngay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Biến lưu ID của form đang được chọn
+        let currentLockFormId = '';
+
+        function showLockModal(formId, employeeName) {
+            // 1. Lưu ID form vào biến toàn cục
+            currentLockFormId = formId;
+
+            // 2. Hiển thị tên nhân viên lên modal cho rõ ràng
+            document.getElementById('employeeNameLock').innerText = employeeName;
+
+            // 3. Hiển thị Modal (Bootstrap 5)
+            // Nếu dùng Bootstrap 4, đổi thành $('#lockModal').modal('show');
+            var myModal = new bootstrap.Modal(document.getElementById('lockModal'));
+            myModal.show();
+        }
+
+        // Xử lý khi bấm nút "Khóa ngay" trong Modal
+        document.getElementById('btnConfirmLock').addEventListener('click', function () {
+            if (currentLockFormId) {
+                // Submit cái form tương ứng với nhân viên đó
+                document.getElementById(currentLockFormId).submit();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,42 @@
+﻿@model Project_65132692.Models.HomeViewModel_65132692
+
+@{
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+
+<section class="container-fluid p-0 mb-5">
+    <img src="~/Images/banner_noctural.jpg" class="w-100" style="height: 500px; object-fit: cover;" alt="Banner Noctural">
+</section>
+
+<section class="container mb-5">
+    <h2 class="text-center fw-bold mb-4">Sản phẩm </h2>
+    <div class="row g-4">
+        @foreach (var item in Model.ListSanPhams)
+        {
+            <div class="col-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <a href="@Url.Action("Details", "LoaiSanPham_65132692", new { id = item.MaSanPham })">
+                        <img src="~/Images/@item.HinhAnh" class="card-img-top"
+                             alt="@item.TenSanPham" style="height: 300px; object-fit: cover;">
+                    </a>
+
+                    <div class="card-body text-center">
+                        <h6 class="card-title">
+                            <a href="@Url.Action("Details", "LoaiSanPham_65132692", new { id = item.MaSanPham })" class="text-decoration-none text-dark">
+                                @item.TenSanPham
+                            </a>
+                        </h6>
+                        <p class="card-text fw-bold text-danger">
+                            @String.Format("{0:N0} đ", item.DonGia)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4><i class="fa-solid fa-right-to-bracket"></i> ĐĂNG NHẬP</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">@TempData["Success"]</div>
+                }
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form action="@Url.Action("Login")" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên đăng nhập:</label>
+                        <input type="text" name="username" class="form-control" placeholder="Nhập username..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu:</label>
+                        <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">ĐĂNG NHẬP</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                Bạn chưa có tài khoản? <a href="@Url.Action("Register")" class="text-decoration-none fw-bold">Đăng ký ngay</a>
+            </div>
+        </div>
+    </div>
+</div>
